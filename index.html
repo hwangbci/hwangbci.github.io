@@ -52,7 +52,7 @@
 <div class="dashboard">
     <header>
         <h1>미-이란 전쟁에 따른 한국 및 주요국 증시 움직임 Tracking</h1>
-        <div class="subtitle"><div class="blink"></div> SYSTEM LIVE / NEWS SORTED BY TIME</div>
+        <div class="subtitle"><div class="blink"></div> SYSTEM LIVE / KST TIME SYNCED</div>
     </header>
 
     <div class="risk-section">
@@ -133,16 +133,14 @@
             const list = document.getElementById("real-time-news");
             if(list && data.items) {
                 list.innerHTML = "";
-                // 💡 뉴스 최신순 정렬 로직 확실히 고정 (Date 객체로 비교)
-                const sorted = data.items.sort((a,b) => {
-                    const dateA = new Date(a.pubDate);
-                    const dateB = new Date(b.pubDate);
-                    return dateB - dateA; 
-                }).slice(0,5);
+                const sorted = data.items.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate)).slice(0,5);
                 
                 sorted.forEach(item => {
+                    // 💡 한국 시간(KST) 보정: GMT 시간 객체 생성 후 9시간 더함
                     const date = new Date(item.pubDate);
-                    const time = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+                    const kstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+                    
+                    const time = `${String(kstDate.getHours()).padStart(2,'0')}:${String(kstDate.getMinutes()).padStart(2,'0')}`;
                     list.innerHTML += `<li class="news-item"><span style="color:#2962ff; font-weight:bold; margin-right:8px;">${time}</span><a href="${item.link}" target="_blank">${item.title}</a></li>`;
                 });
             }

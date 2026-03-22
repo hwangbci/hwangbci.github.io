@@ -2,63 +2,83 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Conflict Monitor - Byungchan Hwang</title>
+    <title>Macro Monitor: Conflict & Market - Byungchan Hwang</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1a1a; color: #e0e0e0; margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        header { border-bottom: 2px solid #ff4d4d; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-        h1 { color: #ff4d4d; margin: 0; font-size: 1.8rem; }
-        .live-dot { height: 10px; width: 10px; background-color: #ff4d4d; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        
-        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        .card { background: #2d2d2d; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h2 { font-size: 1.1rem; border-left: 4px solid #ff4d4d; padding-left: 10px; margin-top: 0; }
-        
-        /* 지도 영역 시뮬레이션 */
-        .map-placeholder { width: 100%; height: 400px; background: #3d3d3d; display: flex; align-items: center; justify-content: center; border-radius: 5px; color: #888; border: 1px solid #555; }
-        
-        .news-item { margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid #444; padding-bottom: 8px; }
-        .time { color: #ff4d4d; font-weight: bold; margin-right: 10px; }
-        
-        footer { text-align: center; margin-top: 40px; font-size: 0.8rem; color: #666; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; margin: 0; padding: 20px; }
+        .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        h2 { color: #f85149; font-size: 1.1rem; border-left: 4px solid #f85149; padding-left: 10px; margin-top: 0; }
+        .chart-container { height: 300px; width: 100%; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 10px; margin-bottom: 20px; }
+        .live-status { color: #3fb950; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1><span class="live-dot"></span> Middle East Conflict Tracker</h1>
-        <span>Updated: <span id="current-time"></span></span>
-    </header>
+<header>
+    <h1>🚩 Conflict & Finance Dashboard</h1>
+    <div><span class="live-status">● LIVE</span> <span id="time"></span></div>
+</header>
 
-    <div class="grid">
+<div class="grid">
+    <div>
         <div class="card">
-            <h2>Live Conflict Map (Simulation)</h2>
-            <div class="map-placeholder">
-                <p>[ 실시간 위성 데이터 및 교전 지역 매핑 영역 ]</p>
+            <h2>Current Conflict Status (Middle East)</h2>
+            <p>미-이스라엘의 이란 공격(2월 말) 이후 호르무즈 해협 긴장 지속 중. 유가 변동성 극대화.</p>
+            <div style="height: 350px; background: #21262d; display: flex; align-items: center; justify-content: center;">
+                [ 실시간 위성 교전 지도 로딩 중... ]
             </div>
-            <p style="font-size: 0.8rem; color: #aaa; margin-top: 10px;">* 본 페이지는 오픈 소스 데이터를 기반으로 중동 지역의 긴장 상태를 모니터링하는 대시보드 프로토타입입니다.</p>
+        </div>
+        
+        <div class="card">
+            <h2>Global Market Summary</h2>
+            <div class="chart-container">
+                <div class="tradingview-widget-container">
+                    <div id="tradingview_market"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                    new TradingView.MediumWidget({
+                      "symbols": [ ["S&P 500", "SPY|1D"], ["KOSPI 200", "KRX:KOSPI200|1D"], ["WTI Crude", "NYMEX:CL1!|1D"] ],
+                      "chartOnly": false, "width": "100%", "height": "100%", "locale": "ko", "colorTheme": "dark", "gridLineColor": "rgba(42, 46, 57, 0)", "fontColor": "#787B86", "isTransparent": true
+                    });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card">
+            <h2>Energy & Oil Price</h2>
+            <p>WTI 및 두바이유 실시간 추이</p>
+            <div class="chart-container">
+                <div id="tradingview_oil"></div>
+                <script type="text/javascript">
+                new TradingView.widget({
+                  "width": "100%", "height": "100%", "symbol": "NYMEX:CL1!", "interval": "H", "timezone": "Asia/Seoul", "theme": "dark", "style": "2", "locale": "ko", "toolbar_bg": "#f1f3f6", "enable_publishing": false, "hide_top_toolbar": true, "save_image": false, "container_id": "tradingview_oil"
+                });
+                </script>
+            </div>
         </div>
 
         <div class="card">
-            <h2>Breaking News</h2>
-            <div id="news-feed">
-                <div class="news-item"><span class="time">09:12</span> 미-이란 호르무즈 해협 긴장 고조</div>
-                <div class="news-item"><span class="time">08:45</span> 국제 유가, 중동 불안으로 3% 급등</div>
-                <div class="news-item"><span class="time">07:20</span> UN 안전보장이사회 긴급 소집 예정</div>
+            <h2>KOSPI 200 Night Futures (Eurex)</h2>
+            <p>야간 선물 지수: 해외 시장 연동 확인</p>
+            <div style="font-size: 2rem; text-align: center; padding: 20px; color: #3fb950;">
+                <span id="futures-val">862.55</span> <small style="font-size: 1rem;">(-0.07%)</small>
             </div>
+            <p style="font-size: 0.8rem; color: #8b949e;">* Eurex 연동 야간 선물 실시간 데이터 시뮬레이션</p>
         </div>
     </div>
 </div>
 
 <footer>
-    &copy; 2026 Designed by Byungchan Hwang. Data visualization practice for KAIST IMMS.
+    <p>&copy; 2026 Designed by Byungchan Hwang. All rights reserved.</p>
 </footer>
 
 <script>
-    document.getElementById('current-time').innerText = new Date().toLocaleString();
+    document.getElementById('time').innerText = new Date().toLocaleString();
 </script>
 
 </body>

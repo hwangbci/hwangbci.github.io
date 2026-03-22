@@ -152,7 +152,6 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // 구글 뉴스 RSS 피드 (검색어: 증시 OR 유가 OR 중동)
         const rssUrl = "https://news.google.com/rss/search?q=%EC%A6%9D%EC%8B%9C+OR+%EC%9C%A0%EA%B0%80+OR+%EC%A4%91%EB%8F%99&hl=ko&gl=KR&ceid=KR:ko";
         const apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(rssUrl);
 
@@ -160,14 +159,16 @@
             .then(response => response.json())
             .then(data => {
                 const newsList = document.getElementById("real-time-news");
-                newsList.innerHTML = ""; // 로딩 텍스트 제거
+                newsList.innerHTML = ""; 
 
-                // 최신 뉴스 4개만 추출
                 const items = data.items.slice(0, 4);
                 
                 items.forEach(item => {
-                    // 날짜 포맷 변환 (YYYY-MM-DD HH:MM:SS -> YYYY.MM.DD HH:MM)
-                    const dateObj = new Date(item.pubDate);
+                    // 🔥 핵심 수정: API가 주는 시간이 UTC임을 명시하여, 한국 시간(+9)으로 강제 변환
+                    // "2026-03-22 02:50:00" 형태를 "2026-03-22T02:50:00Z"(표준 ISO 포맷)로 바꿔서 인식시킴
+                    const utcDateString = item.pubDate.replace(' ', 'T') + 'Z';
+                    const dateObj = new Date(utcDateString);
+                    
                     const year = dateObj.getFullYear();
                     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
                     const day = String(dateObj.getDate()).padStart(2, '0');
@@ -175,7 +176,6 @@
                     const minutes = String(dateObj.getMinutes()).padStart(2, '0');
                     const formattedTime = `${year}.${month}.${day} ${hours}:${minutes}`;
 
-                    // HTML 요소 생성
                     const li = document.createElement("li");
                     li.className = "news-item";
                     li.innerHTML = `

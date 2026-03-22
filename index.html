@@ -9,7 +9,6 @@
         body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         .dashboard { padding: 20px; max-width: 1400px; margin: 0 auto; }
         
-        /* Header & Banner */
         header { border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 15px; }
         h1 { margin: 0; font-size: 24px; color: #ffffff; letter-spacing: -0.5px; }
         .subtitle { color: var(--accent-red); font-size: 14px; font-weight: bold; margin-top: 5px; display: flex; align-items: center; gap: 8px; }
@@ -21,7 +20,6 @@
         .strategy-banner .indicator-value { background: var(--accent-red); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 18px; }
         .strategy-banner .message { font-size: 16px; color: #ff9800; font-weight: bold; }
 
-        /* Top Bar: Oil & News */
         .top-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .panel { background-color: var(--panel-bg); border: 1px solid var(--border); border-radius: 6px; padding: 15px; }
         .panel-title { font-size: 14px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin: 0 0 10px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
@@ -40,7 +38,6 @@
         .news-time { color: #2962ff; font-weight: bold; margin-right: 8px; }
         .news-tag { background: rgba(242, 54, 69, 0.2); color: var(--accent-red); padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-right: 5px; }
 
-        /* Charts Layout */
         .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .chart-stack { display: flex; flex-direction: column; gap: 15px; }
         .chart-box { background: #151a22; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; height: 320px; display: flex; flex-direction: column; }
@@ -152,20 +149,23 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // 캐시 방지를 위해 매번 다른 숫자를 API 주소 뒤에 붙임
+        const cacheBuster = new Date().getTime();
         const rssUrl = "https://news.google.com/rss/search?q=%EC%A6%9D%EC%8B%9C+OR+%EC%9C%A0%EA%B0%80+OR+%EC%A4%91%EB%8F%99&hl=ko&gl=KR&ceid=KR:ko";
-        const apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(rssUrl);
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&t=${cacheBuster}`;
 
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
                 const newsList = document.getElementById("real-time-news");
+                if (!data.items || data.items.length === 0) return;
+                
                 newsList.innerHTML = ""; 
 
                 const items = data.items.slice(0, 4);
                 
                 items.forEach(item => {
-                    // 🔥 핵심 수정: API가 주는 시간이 UTC임을 명시하여, 한국 시간(+9)으로 강제 변환
-                    // "2026-03-22 02:50:00" 형태를 "2026-03-22T02:50:00Z"(표준 ISO 포맷)로 바꿔서 인식시킴
+                    // 타임존 패치 (영국시간 -> 한국시간 변환)
                     const utcDateString = item.pubDate.replace(' ', 'T') + 'Z';
                     const dateObj = new Date(utcDateString);
                     
@@ -187,7 +187,7 @@
                 });
             })
             .catch(error => {
-                document.getElementById("real-time-news").innerHTML = '<li class="news-item" style="color: #ff4d4d;">뉴스를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</li>';
+                document.getElementById("real-time-news").innerHTML = '<li class="news-item" style="color: #ff4d4d;">실시간 뉴스를 가져오는 데 실패했습니다.</li>';
                 console.error("Error fetching news:", error);
             });
     });

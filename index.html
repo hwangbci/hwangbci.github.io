@@ -35,6 +35,8 @@
         
         .news-list { list-style: none; padding: 0; margin: 0; height: 95px; overflow-y: auto; }
         .news-item { font-size: 13px; margin-bottom: 10px; line-height: 1.5; border-bottom: 1px dashed #2a2e39; padding-bottom: 8px; }
+        .news-item a { color: var(--text-main); text-decoration: none; }
+        .news-item a:hover { color: #fff; text-decoration: underline; }
         .news-time { color: #2962ff; font-weight: bold; margin-right: 8px; }
         .news-tag { background: rgba(242, 54, 69, 0.2); color: var(--accent-red); padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-right: 5px; }
 
@@ -85,11 +87,9 @@
         </div>
 
         <div class="panel">
-            <h2 class="panel-title">Live Breaking News</h2>
-            <ul class="news-list">
-                <li class="news-item"><span class="news-time">2026.03.22 10:45</span> <span class="news-tag">속보</span> 이란 혁명수비대, 호르무즈 해협 인근 해상 훈련 예고... 원유 수송 차질 우려</li>
-                <li class="news-item"><span class="news-time">2026.03.22 09:30</span> <span class="news-tag">시장</span> 한국 코스피, 외국인 및 기관 동반 매도세에 2600선 위협</li>
-                <li class="news-item"><span class="news-time">2026.03.22 07:15</span> <span class="news-tag">국제</span> 미국 백악관, "중동 지역 확전 방지 위해 모든 외교적 노력 총동원할 것"</li>
+            <h2 class="panel-title">Live Breaking News (증시/유가/중동)</h2>
+            <ul class="news-list" id="real-time-news">
+                <li class="news-item" style="color: #787b86;">실시간 뉴스를 불러오는 중입니다...</li>
             </ul>
         </div>
     </div>
@@ -146,9 +146,52 @@
 
     <footer>
         &copy; 2026 Designed by Byungchan Hwang. All rights reserved. <br>
-        * 본 대시보드는 정보경영 분석용 프로토타입이며, KOSPI 200 선물을 포함한 전 데이터는 Investing.com 위젯을 통해 실시간 송출됩니다.
+        * 본 대시보드는 정보경영 분석용 프로토타입이며, 구글 뉴스 RSS 및 Investing.com 실시간 데이터를 사용합니다.
     </footer>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 구글 뉴스 RSS 피드 (검색어: 증시 OR 유가 OR 중동)
+        const rssUrl = "https://news.google.com/rss/search?q=%EC%A6%9D%EC%8B%9C+OR+%EC%9C%A0%EA%B0%80+OR+%EC%A4%91%EB%8F%99&hl=ko&gl=KR&ceid=KR:ko";
+        const apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(rssUrl);
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const newsList = document.getElementById("real-time-news");
+                newsList.innerHTML = ""; // 로딩 텍스트 제거
+
+                // 최신 뉴스 4개만 추출
+                const items = data.items.slice(0, 4);
+                
+                items.forEach(item => {
+                    // 날짜 포맷 변환 (YYYY-MM-DD HH:MM:SS -> YYYY.MM.DD HH:MM)
+                    const dateObj = new Date(item.pubDate);
+                    const year = dateObj.getFullYear();
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    const formattedTime = `${year}.${month}.${day} ${hours}:${minutes}`;
+
+                    // HTML 요소 생성
+                    const li = document.createElement("li");
+                    li.className = "news-item";
+                    li.innerHTML = `
+                        <span class="news-time">${formattedTime}</span> 
+                        <span class="news-tag">속보</span> 
+                        <a href="${item.link}" target="_blank" title="${item.title}">${item.title}</a>
+                    `;
+                    newsList.appendChild(li);
+                });
+            })
+            .catch(error => {
+                document.getElementById("real-time-news").innerHTML = '<li class="news-item" style="color: #ff4d4d;">뉴스를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</li>';
+                console.error("Error fetching news:", error);
+            });
+    });
+</script>
 
 </body>
 </html>

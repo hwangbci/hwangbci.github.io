@@ -5,16 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Macro Tracker - Byungchan Hwang</title>
     <style>
-        :root { --bg-color: #0b0e14; --panel-bg: #151a22; --text-main: #d1d4dc; --text-muted: #787b86; --accent-red: #f23645; --accent-green: #089981; --border: #2a2e39; }
+        :root { --bg-color: #0b0e14; --panel-bg: #151a22; --text-main: #d1d4dc; --text-muted: #787b86; --accent-red: #f23645; --accent-green: #089981; --border: #2a2e39; --warning-bg: rgba(242, 54, 69, 0.15); }
         body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         .dashboard { padding: 20px; max-width: 1400px; margin: 0 auto; }
         
         /* Header & Title */
-        header { border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; }
+        header { border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 15px; }
         h1 { margin: 0; font-size: 24px; color: #ffffff; letter-spacing: -0.5px; }
         .subtitle { color: var(--accent-red); font-size: 14px; font-weight: bold; margin-top: 5px; display: flex; align-items: center; gap: 8px; }
         .blink { width: 8px; height: 8px; background-color: var(--accent-red); border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        /* 🔥 AI Strategy Alert Banner */
+        .strategy-banner { background-color: var(--warning-bg); border: 1px solid var(--accent-red); border-radius: 6px; padding: 15px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .strategy-banner .indicator { font-size: 16px; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .strategy-banner .indicator-value { background: var(--accent-red); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 18px; }
+        .strategy-banner .message { font-size: 16px; color: #ff9800; font-weight: bold; }
 
         /* Top Bar: Oil & News */
         .top-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
@@ -38,8 +44,10 @@
         /* Main Charts Grid */
         .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .chart-stack { display: flex; flex-direction: column; gap: 15px; }
-        .chart-box { height: 260px; width: 100%; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-        .chart-label { background: #2a2e39; padding: 5px 10px; font-size: 12px; font-weight: bold; color: #fff; }
+        .chart-box { background: #151a22; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+        .chart-label { background: #2a2e39; padding: 8px 12px; font-size: 13px; font-weight: bold; color: #fff; border-bottom: 1px solid #1a1e26; }
+        /* 💡 차트 높이를 명시적으로 고정 (버그 해결) */
+        .tv-container { height: 280px; width: 100%; }
         
         footer { text-align: right; padding: 20px; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 30px; }
     </style>
@@ -52,18 +60,28 @@
         <div class="subtitle"><div class="blink"></div> LIVE MACRO DASHBOARD</div>
     </header>
 
+    <div class="strategy-banner">
+        <div class="indicator">
+            <span>Market Fear Index (VIX)</span>
+            <span class="indicator-value">34.20 (Extreme Fear)</span>
+        </div>
+        <div class="message">
+            ⚠️ "지정학적 리스크로 인한 변동성 극대화 구간입니다. 자산을 현금화하고 신중하게 지켜볼 때입니다."
+        </div>
+    </div>
+
     <div class="top-bar">
         <div class="panel">
             <h2 class="panel-title">국제 유가 동향 (Global Crude Oil)</h2>
             <div class="oil-grid">
                 <div class="oil-box">
                     <div class="oil-name">두바이유 (Dubai Crude)</div>
-                    <div class="oil-price">87.15 <span class="oil-unit">달러 / 배럴 (USD/bbl)</span></div>
+                    <div class="oil-price">87.15 <span class="oil-unit">달러 / 배럴</span></div>
                     <div class="oil-change">▲ +2.30 (+2.71%)</div>
                 </div>
                 <div class="oil-box">
                     <div class="oil-name">WTI (서부텍사스산원유)</div>
-                    <div class="oil-price">86.42 <span class="oil-unit">달러 / 배럴 (USD/bbl)</span></div>
+                    <div class="oil-price">86.42 <span class="oil-unit">달러 / 배럴</span></div>
                     <div class="oil-change">▲ +2.15 (+2.55%)</div>
                 </div>
             </div>
@@ -85,15 +103,15 @@
             <div class="chart-stack">
                 <div class="chart-box">
                     <div class="chart-label">1. KOSPI (코스피 종합)</div>
-                    <div id="tv_kospi" style="height: calc(100% - 25px);"></div>
+                    <div id="tv_kospi" class="tv-container"></div>
                 </div>
                 <div class="chart-box">
                     <div class="chart-label">2. KOSDAQ (코스닥 종합)</div>
-                    <div id="tv_kosdaq" style="height: calc(100% - 25px);"></div>
+                    <div id="tv_kosdaq" class="tv-container"></div>
                 </div>
                 <div class="chart-box">
-                    <div class="chart-label">3. KOSPI 200 선물 (야간/주간 연동)</div>
-                    <div id="tv_futures" style="height: calc(100% - 25px);"></div>
+                    <div class="chart-label">3. KOSPI 200 선물</div>
+                    <div id="tv_futures" class="tv-container"></div>
                 </div>
             </div>
         </div>
@@ -103,19 +121,57 @@
             <div class="chart-stack">
                 <div class="chart-box">
                     <div class="chart-label">1. 미국 (S&P 500)</div>
-                    <div id="tv_us" style="height: calc(100% - 25px);"></div>
+                    <div id="tv_us" class="tv-container"></div>
                 </div>
                 <div class="chart-box">
                     <div class="chart-label">2. 중국 (상해종합지수)</div>
-                    <div id="tv_china" style="height: calc(100% - 25px);"></div>
+                    <div id="tv_china" class="tv-container"></div>
                 </div>
                 <div class="chart-box">
                     <div class="chart-label">3. 일본 (닛케이 225)</div>
-                    <div id="tv_japan" style="height: calc(100% - 25px);"></div>
+                    <div id="tv_japan" class="tv-container"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <footer>
-        &copy; 2026 Designed by Byungchan Hwang. All rights reserved
+        &copy; 2026 Designed by Byungchan Hwang. All rights reserved. <br>
+        * 본 대시보드는 정보경영 분석용 프로토타입이며, TradingView 데이터를 기반으로 합니다.
+    </footer>
+</div>
+
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script type="text/javascript">
+    function createChart(containerId, symbol) {
+        new TradingView.widget({
+            "autosize": true,
+            "symbol": symbol,
+            "interval": "D",
+            "timezone": "Asia/Seoul",
+            "theme": "dark",
+            "style": "1",
+            "locale": "kr",
+            "enable_publishing": false,
+            "backgroundColor": "#151a22",
+            "gridColor": "#2a2e39",
+            "hide_top_toolbar": true,
+            "hide_legend": false,
+            "save_image": false,
+            "container_id": containerId
+        });
+    }
+
+    // 약간의 딜레이를 주어 HTML 렌더링 후 차트가 그려지도록 안전장치 추가
+    setTimeout(function() {
+        createChart("tv_kospi", "KRX:KOSPI");
+        createChart("tv_kosdaq", "KRX:KOSDAQ");
+        createChart("tv_futures", "KRX:KOSPI200F1!");
+        createChart("tv_us", "SP:SPX");
+        createChart("tv_china", "TVC:SHCOMP");
+        createChart("tv_japan", "TVC:NI225");
+    }, 100);
+</script>
+
+</body>
+</html>
